@@ -59,6 +59,17 @@ while True:
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
                 name = "Unknown"
+                face_landmarks_list = face_recognition.face_landmarks(rgb_small_frame, model="small")
+                leftEyeCenter = ((((face_landmarks_list[0]["left_eye"][0][0]) +
+                                (face_landmarks_list[0]["left_eye"][1][0]))*2),
+                                (((face_landmarks_list[0]["left_eye"][0][1]) +
+                                (face_landmarks_list[0]["left_eye"][1][1]))*2))
+                rightEyeCenter = ((((face_landmarks_list[0]["right_eye"][0][0]) +
+                                (face_landmarks_list[0]["right_eye"][1][0]))*2),
+                                (((face_landmarks_list[0]["right_eye"][0][1]) +
+                                (face_landmarks_list[0]["right_eye"][1][1]))*2))
+                nosePointCenter = ((face_landmarks_list[0]["nose_tip"][0][0])*4,
+                                (face_landmarks_list[0]["nose_tip"][0][1])*4)
 
                 # # If a match was found in known_face_encodings, just use the first one.
                 # if True in matches:
@@ -85,12 +96,13 @@ while True:
         right *= 4
         bottom *= 4
         left *= 4
+        print(rightEyeCenter)
 
-        # Draw a box around the face
+        # Display eye locations
+        cv2.circle(frame, leftEyeCenter, 3, (0, 255, 0))
+        cv2.circle(frame, rightEyeCenter, 3, (0, 255, 0))
 
-
-        # Draw a label with a name below the face
-
+        # Display box around face, and label user if verified
         font = cv2.FONT_HERSHEY_DUPLEX
         percentSimilarity = str(100 *(round((1 - face_distances[best_match_index]), 4))) + "%"
         if verifiedUser:
