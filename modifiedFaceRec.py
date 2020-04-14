@@ -2,7 +2,7 @@ import face_recognition
 import cv2
 import numpy as np
 import os
-
+import time
 
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
@@ -20,6 +20,7 @@ def verifyUser(reporting=True, headTiltCheck=True, eyeDirectionCheck=True, light
     known_face_names = []
     path = os.getcwd()
     print("starting")
+    startTime = time.time()
     imgNames = os.listdir(path + "/photo")
     for x in imgNames:
         usrImg = face_recognition.load_image_file("photo/" + x)
@@ -33,6 +34,7 @@ def verifyUser(reporting=True, headTiltCheck=True, eyeDirectionCheck=True, light
     face_encodings = []
     face_names = []
     process_this_frame = True
+    endFlag = False
 
     # Get a reference to webcam #0 (the default one)
     video_capture = cv2.VideoCapture(0)
@@ -180,6 +182,7 @@ def verifyUser(reporting=True, headTiltCheck=True, eyeDirectionCheck=True, light
 
             if eyeDirectionCheck:
                 cv2.rectangle(frame, (xboxLeft1, yboxLeft1), (xboxLeft2, yboxLeft2), (255, 255, 255), 1)
+                cv2.rectangle(frame, (xboxRight1, yboxRight1), (xboxRight2, yboxRight2), (255, 255, 255), 1)
                 cv2.circle(frame, trueLeftPupil, 5, (255, 180, 100), 2)
                 cv2.circle(frame, trueRightPupil, 5, (255, 180, 100), 2)
                 if reporting:
@@ -193,10 +196,14 @@ def verifyUser(reporting=True, headTiltCheck=True, eyeDirectionCheck=True, light
             verifiedUser = (userRecognized and faceForward and isLCentered and isRCentered)
 
             if verifiedUser:
+                if not endFlag:
+                    endTime = time.time()
+                    endFlag = True
                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 1)
                 toDisplay = "VERIFIED: " + name
                 cv2.rectangle(frame, (left, bottom - 25), (right, bottom), (0, 255, 0), cv2.FILLED)
-                cv2.putText(frame, toDisplay, (left + 6, bottom - 6), font, 0.7, (255, 255, 255), 1)
+                cv2.putText(frame, toDisplay, (left + 6, bottom - 6), font, 0.6, (255, 255, 255), 1)
+                cv2.putText(frame, str(round(endTime - startTime, 2)), (30, 450), font, 0.8, (255, 255, 255))
             else:
                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 1)
 
